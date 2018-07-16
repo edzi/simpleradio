@@ -1,5 +1,7 @@
 <?php
 namespace radio\classes;
+use radio\core\BaseConfig;
+
 /**
  * Created by PhpStorm.
  * User: littl
@@ -14,8 +16,8 @@ class DataBase
 
     public function __construct()
     {
-        $dsn = 'mysql:dbname=' . DATABASE_NAME . ';host=' . DATABASE_HOST . ';charset=' . DATABASE_CHARSET;
-        $this->dbh = new \PDO($dsn, DATABASE_USER, DATABASE_PASSWORD);
+        $dsn = 'mysql:dbname=' . BaseConfig::DATABASE_NAME . ';host=' . BaseConfig::DATABASE_HOST . ';charset=' . BaseConfig::DATABASE_CHARSET;
+        $this->dbh = new \PDO($dsn, BaseConfig::DATABASE_USER, BaseConfig::DATABASE_PASSWORD);
         $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 

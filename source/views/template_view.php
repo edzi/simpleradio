@@ -37,7 +37,7 @@
 	</div>
 </div>
 <div id="footer">
-	<a href="/">test footer</a> &copy; 2018</a>
+	<a href="/">FOOTER</a> &copy; 2018</a>
 </div>
 </body>
 </html>

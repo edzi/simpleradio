@@ -63,8 +63,8 @@ class Route
     }
     
     public static function errorPage404()
-    {
-        header('Location:' . BASE_PATH . '404');
+    {                
+        header('Location:' . BaseConfig::BASE_PATH . '404');
         die;
     }
 }

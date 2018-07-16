@@ -31,7 +31,7 @@ class ControllerAuth extends Controller {
                 ];
                 $this->view->generate('registration_view.php', 'template_view.php', $data);
             } else {
-                header('Location: ' . BASE_PATH . 'auth/login');
+                $this->redirect('auth/login');
             }
         }
     }
@@ -56,10 +56,10 @@ class ControllerAuth extends Controller {
                     $this->view->generate('login_view.php', 'template_view.php', $data);
                 } else {
                     setcookie('authID', $result['hash'], time() + 60 * 60 * 24, '/');
-                    header('Location: ' . BASE_PATH . 'account/');
+                    $this->redirect('account/');
                 }
             } else {
-                header('Location: ' . BASE_PATH . 'account/');
+                $this->redirect('account/');
             }
         }else {
             $this->view->generate('login_view.php', 'template_view.php');
@@ -72,7 +72,7 @@ class ControllerAuth extends Controller {
         if ($Auth->isLogged()) {
             $Auth->logout($_COOKIE['authID']);
             setcookie('authID', null, -1, '/');
-            header('Location: ' . BASE_PATH . 'auth/login');
+            $this->redirect('auth/login/');
         }
     }
 }

@@ -15,7 +15,7 @@ class ControllerMain extends Controller
     {
         $Auth = new Auth();
         if (!$Auth->isLogged()) {
-            header("Location: " . BASE_PATH . "auth/login");
+            $this->redirect('auth/login')     ;
         }
         $this->view->generate('main_view.php', 'template_view.php');
     }
