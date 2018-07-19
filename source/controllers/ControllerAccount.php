@@ -1,6 +1,7 @@
 <?php
 namespace radio\controllers;
 use radio\core\Controller;
+use radio\models\ModelAccount;
 
 /**
  * Created by PhpStorm.
@@ -10,8 +11,19 @@ use radio\core\Controller;
  */
 class ControllerAccount extends Controller 
 {
+    
     public function actionIndex()
     {
-        $this->view->generate('account_view.php', 'template_view.php');
+
+        /**
+         * @var $model ModelAccount
+         */
+        $userData = $this->model->getUserInfo();
+        $this->view->generate('account_view.php', 'template_view.php', $userData);
+    }
+    
+    public function actionRename() 
+    {
+        
     }
 }

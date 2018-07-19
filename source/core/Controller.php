@@ -1,5 +1,7 @@
 <?php
 namespace radio\core;
+use radio\classes\DataBase;
+
 /**
  * Created by PhpStorm.
  * User: littl
@@ -13,6 +15,7 @@ class Controller
 
     public function __construct($Model)
     {
+        DataBase::instance();
         $this->model = $Model;
         $this->view = new View();
     }

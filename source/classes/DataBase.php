@@ -1,6 +1,7 @@
 <?php
 namespace radio\classes;
 use radio\core\BaseConfig;
+use \PDO;
 
 /**
  * Created by PhpStorm.
@@ -11,96 +12,109 @@ use radio\core\BaseConfig;
 
 class DataBase
 {
-    private $dbh;
-    private $className = 'stdClass';
+    /** @var PDO */
+    protected static $instance = null;
 
-    public function __construct()
+    public function __construct() {}
+    public function __clone() {}
+
+    public static function instance()
     {
-        $dsn = 'mysql:dbname=' . BaseConfig::DATABASE_NAME . ';host=' . BaseConfig::DATABASE_HOST . ';charset=' . BaseConfig::DATABASE_CHARSET;
-        $this->dbh = new \PDO($dsn, BaseConfig::DATABASE_USER, BaseConfig::DATABASE_PASSWORD);
-        $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        if (self::$instance === null)
+        {
+            $options  = array(
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => TRUE,
+            );
+            $dsn = 'mysql:host='. BaseConfig::DATABASE_HOST.';dbname='.BaseConfig::DATABASE_NAME.';charset='.BaseConfig::DATABASE_CHARSET;
+            self::$instance = new PDO($dsn, BaseConfig::DATABASE_USER, BaseConfig::DATABASE_PASSWORD, $options);
+        }
+        return self::$instance;
     }
 
     /**
-     * Устанавливает имя класса
-     * @param $className
+     * Прямой запрос
+     * @param $sql
+     * @return array
      */
-    public function setClassName($className)
+    public static function query($sql)
     {
-        $this->className = 'radio\classes\\'. $className;
+        $statement  = self::PDO()->query($sql);
+        return $statement->fetchAll(PDO::FETCH_CLASS, 'stdClass');
     }
 
-    /*
-     *Возвращает результат запроса
+    /**
+     * Возвращаем подготовленное состояние с данными
+     * @param $sql
+     * @param array $params
+     * @return \PDOStatement
      */
-    public function query($sql, $params = [])
+    public static function PDOStatement($sql, $params = [])
     {
-        $sth = $this->dbh->prepare($sql);
-        $sth->execute($params);
-        return $sth->fetchAll(\PDO::FETCH_CLASS, $this->className);
+        $statement = self::PDO()->prepare($sql);
+        $statement->execute($params);
+        return $statement;
     }
 
-
-    public function queryUnbuffered($sql)
+    /**
+     * Получаем подготовленное состояние без данных
+     * @param $sql
+     * @param array $params
+     * @return \PDOStatement
+     */
+    public static function prepareQuery($sql, $params = [])
     {
-        $this->dbh->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-        return $sth = $this->dbh->query($sql);
+        $statement = self::PDO()->prepare($sql, $params);
+        return $statement;
     }
 
-    public function PDOStatement($sql, $params = [])
+    /**
+     * Выполняем подготовленный запрос
+     * @param $statement
+     * @param array $params
+     * @return \PDOStatement
+     */
+    public static function executePreparedQuery($statement, $params = [])
     {
-        $resource = $this->dbh->prepare($sql);
-        $resource->execute($params);
-        return $resource;
-    }
-
-    public function prepare_query($sql, $params = [])
-    {
-        $resource = $this->dbh->prepare($sql, $params);
-        return $resource;
-    }
-
-    public function execute_prepared_query($resource, $params = [])
-    {
+        /** @var $statement \PDOStatement*/
         if (count($params)) {
-            $res = $resource->execute($params);
+            $statement = $statement->execute($params);
         } else {
-            $res = $resource->execute();
+            $statement = $statement->execute();
         }
-        return $res;
+        return $statement;
     }
 
-    public function bind_param($resource, $param_name, $value, $param_type = false)
+    /**
+     * Привязываем переменные к запросу
+     * @param $resource \PDOStatement
+     * @param $paramName
+     * @param $value
+     * @param bool $paramType
+     * @return bool
+     */
+    public static function bindParam($resource, $paramName, $value, $paramType = false)
     {
-        if (!$param_name or !$value) return false;
-//        $sth->bindParam(':calories', $calories, PDO::PARAM_INT);
-//        $sth->bindParam(':colour', $colour, PDO::PARAM_STR, 12);
-        if ($param_type) {
-            $resource->bindParam($param_name, $value, $param_type);
+        if (!$paramName or !$value)
+            return false;
+
+        if ($paramType) {
+            $resource->bindParam($paramName, $value, $paramType);
         } else {
-            $resource->bindParam($param_name, $value);
+            $resource->bindParam($paramName, $value);
         }
+
         return true;
     }
 
-    public function pdo()
+    /**
+     * Получим подключение к базе
+     * @return PDO
+     */
+    public static function PDO()
     {
-        return $this->dbh;
-    }
-
-    public function quote($str)
-    {
-        $pdo = $this->dbh;
-        $result = $pdo->quote($str);
-        return $result;
-    }
-
-    public static function quote_static($str)
-    {
-        $db = new DataBase();
-        $pdo = $db->pdo();
-        $result = $pdo->quote($str);
-        return $result;
+        return self::$instance;
     }
 
     /**
@@ -109,22 +123,9 @@ class DataBase
      * @param array $params
      * @return bool
      */
-    public function execute($sql, $params = [])
+    public static function execute($sql, $params = [])
     {
-        $sth = $this->dbh->prepare($sql);
+        $sth = self::$instance->prepare($sql);
         return $sth->execute($params);
-    }
-
-        /**
-     * Возвращает ID последней добавленной записи
-     * @param $sql
-     * @param array $params
-     * @return string
-     */
-    public function insert($sql, $params = [])
-    {
-        $sth = $this->dbh->prepare($sql);
-        $sth->execute($params);
-        return $this->dbh->lastInsertId();
     }
 }

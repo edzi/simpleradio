@@ -9,15 +9,12 @@ namespace radio\classes;
  */
 class Auth
 {
-    protected $dataBase;
     public $config;
     public $phrases;
 
 
     public function __construct()
     {
-        /** @var DataBase $dataBase */
-        $this->dataBase = new DataBase();
         $this->config = new Config();
 
         // Загружаем фразы
@@ -130,18 +127,18 @@ class Auth
     {
         if ($all == true) {
             $sql = "DELETE FROM {$this->config->table_attempts} WHERE ip = ?";
-            return $this->dataBase->PDOStatement($sql, array($ip));
+            return DataBase::PDOStatement($sql, array($ip));
         }
 
         $sql = "SELECT id, expiredate FROM {$this->config->table_attempts} WHERE ip = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($ip));
+        $result = DataBase::PDOStatement($sql, array($ip));
 
         while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
             $expireDate = strtotime($row['expiredate']);
             $currentDate = strtotime(date("Y-m-d H:i:s"));
             if ($currentDate > $expireDate) {
                 $sql = "DELETE FROM {$this->config->table_attempts} WHERE id = ?";
-                $this->dataBase->PDOStatement($sql, array($row['id']));
+                DataBase::PDOStatement($sql, array($row['id']));
             }
         }
     }
@@ -152,7 +149,7 @@ class Auth
         $this->deleteAttempts($ip, false);
 
         $sql = "SELECT count(*) FROM {$this->config->table_attempts} WHERE ip = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($ip));
+        $result = DataBase::PDOStatement($sql, array($ip));
         $attempts = $result->fetchColumn();
 
         if ($attempts < intval($this->config->attempts_before_verify)) {
@@ -245,7 +242,7 @@ class Auth
         $ip = $this->getIp();
         $attemptExpiredate = date("Y-m-d H:i:s", strtotime($this->config->attack_mitigation_time));
         $sql = "INSERT INTO {$this->config->table_attempts} (ip, expiredate) VALUES (?, ?)";
-        return $this->dataBase->PDOStatement($sql, array($ip, $attemptExpiredate));
+        return DataBase::PDOStatement($sql, array($ip, $attemptExpiredate));
     }
 
     /**
@@ -258,7 +255,7 @@ class Auth
     public function getUID($email)
     {
         $sql = "SELECT id FROM {$this->config->table_users} WHERE email = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($email));
+        $result = DataBase::PDOStatement($sql, array($email));
 
         if ($result->rowCount() == 0) {
             return false;
@@ -276,7 +273,7 @@ class Auth
     protected function getBaseUser($uid)
     {
         $sql = "SELECT email, password, isactive FROM {$this->config->table_users} WHERE id = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($uid));
+        $result = DataBase::PDOStatement($sql, array($uid));
 
         if ($result->rowCount() == 0) {
             return false;
@@ -324,7 +321,7 @@ class Auth
         $data['cookie_crc'] = sha1($data['hash'] . $this->config->site_key);
 
         $sql = "INSERT INTO {$this->config->table_sessions} (uid, hash, expiredate, ip, agent, cookie_crc) VALUES (?, ?, ?, ?, ?, ?)";
-        $result = $this->dataBase->PDOStatement($sql, array($uid, $data['hash'], $data['expire'], $ip, $agent, $data['cookie_crc']));
+        $result = DataBase::PDOStatement($sql, array($uid, $data['hash'], $data['expire'], $ip, $agent, $data['cookie_crc']));
 
         if (!$result) {
             return false;
@@ -344,7 +341,7 @@ class Auth
     protected function deleteExistingSessions($uid)
     {
         $sql = "DELETE FROM {$this->config->table_sessions} WHERE uid = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($uid));
+        $result = DataBase::PDOStatement($sql, array($uid));
 
         return $result->rowCount() == 1;
     }
@@ -434,7 +431,7 @@ class Auth
     public function isEmailTaken($email)
     {
         $sql = "SELECT count(*) FROM {$this->config->table_users} WHERE email = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($email));
+        $result = DataBase::PDOStatement($sql, array($email));
 
 
         if ($result->fetchColumn() == 0) {
@@ -458,14 +455,14 @@ class Auth
         $return['error'] = true;
 
         $sql = "INSERT INTO {$this->config->table_users} VALUES ()";
-        $result = $this->dataBase->PDOStatement($sql);
+        $result = DataBase::PDOStatement($sql);
 
         if (!$result) {
             $return['message'] = $this->phrases["system_error"] . " #03";
             return $return;
         }
 
-        $uid = $this->dataBase->pdo()->lastInsertId();
+        $uid = DataBase::PDO()->lastInsertId();
         $email = htmlentities(strtolower($email));
 
         if ($sendMail) {
@@ -473,7 +470,7 @@ class Auth
 
             if ($addRequest['error'] == 1) {
                 $sql = "DELETE FROM {$this->config->table_users} WHERE id = ?";
-                $this->dataBase->PDOStatement($sql, array($uid));
+                DataBase::PDOStatement($sql, array($uid));
                 $return['message'] = $addRequest['message'];
 
                 return $return;
@@ -499,11 +496,11 @@ class Auth
         } else { $setParams = ''; }
         $sql = "UPDATE {$this->config->table_users} SET email = ?, password = ?, isactive = ? {$setParams} WHERE id = ?";
         $bindParams = array_values(array_merge(array($email, $password, $isactive), $params, array($uid)));
-        $result = $this->dataBase->PDOStatement($sql,$bindParams);
+        $result = DataBase::PDOStatement($sql,$bindParams);
 
         if (!$result) {
             $sql = "DELETE FROM {$this->config->table_users} WHERE id = ?";
-            $this->dataBase->PDOStatement($sql,array($uid));
+            DataBase::PDOStatement($sql,array($uid));
             $return['message'] = $this->phrases["system_error"] . " #04";
 
             return $return;
@@ -551,7 +548,7 @@ class Auth
         }
 
         $sql = "SELECT id, expire FROM {$this->config->table_requests} WHERE uid = ? AND type = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($uid, $type));
+        $result = DataBase::PDOStatement($sql, array($uid, $type));
 
         if ($result->rowCount() > 0) {
             $row = $result->fetch(\PDO::FETCH_ASSOC);
@@ -578,7 +575,7 @@ class Auth
         $expire = date("Y-m-d H:i:s", strtotime($this->config->request_key_expiration));
 
         $sql = "INSERT INTO {$this->config->table_requests} (uid, rkey, expire, type) VALUES (?, ?, ?, ?)";
-        $result = $this->dataBase->PDOStatement($sql, array($uid, $key, $expire, $type));
+        $result = DataBase::PDOStatement($sql, array($uid, $key, $expire, $type));
 
         if (!$result) {
             $return['message'] = $this->phrases["system_error"] . " #09";
@@ -645,7 +642,7 @@ class Auth
     protected function deleteRequest($id)
     {
         $sql = "DELETE FROM {$this->config->table_requests} WHERE id = ?";
-        return $this->dataBase->PDOStatement($sql, array($id));
+        return DataBase::PDOStatement($sql, array($id));
     }
 
     /**
@@ -704,7 +701,7 @@ class Auth
             return false;
         }
         $sql = "SELECT id, uid, expiredate, ip, agent, cookie_crc FROM {$this->config->table_sessions} WHERE hash = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($hash));
+        $result = DataBase::PDOStatement($sql, array($hash));
 
         if ($result->rowCount() == 0) {
             return false;
@@ -758,8 +755,25 @@ class Auth
     protected function deleteSession($hash)
     {
         $sql = "DELETE FROM {$this->config->table_sessions} WHERE hash = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($hash));
+        $result = DataBase::PDOStatement($sql, array($hash));
 
         return $result->rowCount() == 1;
+    }
+
+    /**
+     * Получаем id пользователя по хэшу
+     * @param string $hash
+     * @return integer $uid
+     */
+    public function getSessionUID($hash)
+    {
+        $sql = "SELECT uid FROM {$this->config->table_sessions} WHERE hash = ?";
+        $result = DataBase::PDOStatement($sql, array($hash));
+
+        if ($result->rowCount() == 0) {
+            return false;
+        }
+
+        return $result->fetch(\PDO::FETCH_ASSOC)['uid'];
     }
 }

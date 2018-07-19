@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta name="description" content="" />
@@ -12,20 +12,22 @@
 </head>
 <body>
 <div id="wrapper">
-	<div id="header">
-		<div id="logo">
-			<a href="/"></span> <span class="cms">NAME</span></a>
+	<header>
+		<div id="header">
+			<div id="logo">
+				<a href="/"></span> <span class="cms">NAME</span></a>
+			</div>
+			<div id="menu">
+				<ul>
+					<li class="first active"><a href="/">Main page</a></li>
+					<li><a href="/auth/login">Login</a></li>
+					<li><a href="/auth/registration">Registration</a></li>
+					<li class="last"><a href="/auth/logout">Exit</a></li>
+				</ul>
+				<br class="clearfix" />
+			</div>
 		</div>
-		<div id="menu">
-			<ul>
-				<li class="first active"><a href="/">Main page</a></li>
-				<li><a href="/auth/login">Login</a></li>
-				<li><a href="/auth/registration">Registration</a></li>
-				<li class="last"><a href="/auth/logout">Exit</a></li>
-			</ul>
-			<br class="clearfix" />
-		</div>
-	</div>
+	</header>
 	<div id="page">
 		<div id="content">
 			<div class="box">
