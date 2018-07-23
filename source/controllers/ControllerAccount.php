@@ -1,7 +1,8 @@
 <?php
 namespace radio\controllers;
 use radio\core\Controller;
-use radio\models\ModelAccount;
+use radio\models\ModelAccount as ModelAccount;
+use radio\classes\Auth;
 
 /**
  * Created by PhpStorm.
@@ -11,19 +12,40 @@ use radio\models\ModelAccount;
  */
 class ControllerAccount extends Controller 
 {
-    
+    /** @var  $model ModelAccount*/
+    public $model;
     public function actionIndex()
     {
-
-        /**
-         * @var $model ModelAccount
-         */
-        $userData = $this->model->getUserInfo();
-        $this->view->generate('account_view.php', 'template_view.php', $userData);
+        $auth = new Auth();
+        if ($auth->isLogged()) {
+            $this->model->setUserInfo();
+        }
+        $this->model->setListServices();
+        $this->model->setListFunctions();
+        $data = $this->model->getData();
+        $this->view->generate('account_view.php', 'template_view.php', $data);
     }
     
     public function actionRename() 
     {
-        
+        $auth = new Auth();
+        if ($auth->isLogged()) {
+            $this->model->setUserInfo();
+            $this->model->setListServices();
+            $this->model->setListFunctions();
+            $result = $this->model->updateUserInfo();
+
+            $data = [];
+            if (!$result['error']) {
+                $this->redirect('account/');
+            } else {
+                $data = [
+                    'message' => $result['message']
+                ];
+            }
+            $this->model->setData($data);
+            $data = $this->model->getData();
+            $this->view->generate('account_view.php', 'template_view.php', $data);
+        }
     }
 }

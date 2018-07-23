@@ -9,16 +9,24 @@ namespace radio\core;
 class Model 
 {
     protected $data = [];
-    protected function setData($data) {
-        if (is_array($data)) {
-            $this->data = array_merge($this->data, $data);
-        } else {
-            return false;
+    public function setData($data, $keyData = '') {
+        if (strlen($keyData) > 0) {
+            if (isset($this->data[$keyData])) {
+                echo "<pre>";print_r('Данные для ключа ='. $keyData. '= не установлены. Неуникальный ключ.');echo "</pre>";
+            } else {
+                $this->data[$keyData] = $data;
+            }
+        } else  {
+            if (is_array($data)) {                
+                $this->data = array_merge($this->data, $data);
+            } else {
+                return false;
+            }        
         }
         return $data;
     }
-    
-    public function getData() 
+
+    public function getData()
     {
         return $this->data;
     }

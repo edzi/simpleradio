@@ -41,7 +41,7 @@ class DataBase
     public static function query($sql)
     {
         $statement  = self::PDO()->query($sql);
-        return $statement->fetchAll(PDO::FETCH_CLASS, 'stdClass');
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -127,5 +127,23 @@ class DataBase
     {
         $sth = self::$instance->prepare($sql);
         return $sth->execute($params);
+    }
+
+    /**
+     * Функция хелпер для сборки запроса
+     * @param $allowed
+     * @param array $source
+     * @return string
+     */
+    public static function pdoSet($allowed, $source) {
+        $set = '';
+        //$fieldTo - заменяющий
+        //$fieldFrom - заменяемый ключ
+        foreach ($allowed as $fieldFrom => $fieldTo) {
+            if (isset($source[$fieldFrom])) {
+                $set.="`".str_replace("`","``",$fieldTo)."`". "=:$fieldFrom, ";
+            }
+        }
+        return substr($set, 0, -2);
     }
 }

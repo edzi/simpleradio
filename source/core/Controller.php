@@ -24,7 +24,7 @@ class Controller
     {
         
     }
-
+    
     public function redirect($redirectUrl)
     {
         if ('/' == substr($redirectUrl, 0, 1)) {

@@ -8,7 +8,7 @@ namespace radio\core;
  */
 class View
 {        
-    function generate($contentView, $templateView, $data=[]) 
+    public function generate($contentView, $templateView, $data=[])
     {
         foreach($data as $key => $value){
             $$key = $value;
@@ -16,5 +16,19 @@ class View
         require 'source/views/' . $templateView;
     }
 
-   
+   public static function generateMessageTemplate($messages)
+   {
+       if (empty($messages)) {
+           return '';
+       }
+       if (is_array($messages)) {
+           $message = implode('</br>', $messages);
+       } else {
+           $message = $messages;
+       }
+       $html = '<label>'
+           . $message
+           . '</label>';
+       return $html;
+   }
 }

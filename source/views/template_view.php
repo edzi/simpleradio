@@ -8,7 +8,9 @@
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css" />
 	<link href="http://fonts.googleapis.com/css?family=Kreon" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="/css/button.css" />
 	<script src="/js/jquery-1.6.2.js" type="text/javascript"></script>
+	<script src="/js/button.js" type="text/javascript"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -22,14 +24,22 @@
 					<li class="first active"><a href="/">Main page</a></li>
 					<li><a href="/auth/login">Login</a></li>
 					<li><a href="/auth/registration">Registration</a></li>
+					<li class="account" ><a href="#">Account</a></li>
 					<li class="last"><a href="/auth/logout">Exit</a></li>
 				</ul>
 				<br class="clearfix" />
 			</div>
 		</div>
 	</header>
+	<div class="modal-window">
+		<div class="close">X</div>
+		Текстовое наполнение всплывающего окна.
+	</div>
 	<div id="page">
 		<div id="content">
+			<div class="message">
+				<?php if (!empty($message) and isset($message)) echo \radio\core\View::generateMessageTemplate($message)?>
+			</div>
 			<div class="box">
 				<?php include 'source/views/'.$contentView; ?>
 			</div>
