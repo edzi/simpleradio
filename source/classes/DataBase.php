@@ -26,9 +26,14 @@ class DataBase
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => TRUE,
+                PDO::ATTR_PERSISTENT => TRUE
             );
             $dsn = 'mysql:host='. BaseConfig::DATABASE_HOST.';dbname='.BaseConfig::DATABASE_NAME.';charset='.BaseConfig::DATABASE_CHARSET;
-            self::$instance = new PDO($dsn, BaseConfig::DATABASE_USER, BaseConfig::DATABASE_PASSWORD, $options);
+            try {
+                self::$instance = new PDO($dsn, BaseConfig::DATABASE_USER, BaseConfig::DATABASE_PASSWORD, $options);
+            } catch (\PDOException $e) {
+                echo $e->getMessage();die();
+            }
         }
         return self::$instance;
     }

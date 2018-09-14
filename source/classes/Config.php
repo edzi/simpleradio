@@ -1,6 +1,7 @@
 <?php
 namespace radio\classes;
 
+
 /**
  * PHPAuth Config class
  */
@@ -18,15 +19,13 @@ class Config
      */
     public function __construct($config_table = 'config')
     {
-        $this->dataBase = new DataBase();
-
         if (func_num_args() > 1) {
             $this->config_table = $config_table;
         }
 
         $this->config = array();
         $sql = "SELECT * FROM {$this->config_table}";
-        $result = $this->dataBase->PDOStatement($sql);
+        $result = DataBase::PDOStatement($sql);
 
         while($row = $result->fetch()) {
             $this->config[$row['setting']] = $row['value'];
@@ -56,7 +55,7 @@ class Config
     public function __set($setting, $value)
     {
         $sql = "UPDATE {$this->config_table} SET value = ? WHERE setting = ?";
-        $result = $this->dataBase->PDOStatement($sql, array($value, $setting));
+        $result = DataBase::PDOStatement($sql, array($value, $setting));
 
         if ($result) {
             $this->config[$setting] = $value;

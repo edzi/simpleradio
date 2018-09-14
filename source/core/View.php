@@ -8,7 +8,7 @@ namespace radio\core;
  */
 class View
 {        
-    public function generate($contentView, $templateView, $data=[])
+    public function generate($contentView = '', $templateView = '', $data=[])
     {
         foreach($data as $key => $value){
             $$key = $value;

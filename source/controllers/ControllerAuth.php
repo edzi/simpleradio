@@ -21,7 +21,7 @@ class ControllerAuth extends Controller {
     {
         $inputData = $_POST;
         if (empty($inputData)) {
-            $this->view->generate('registration_view.php', 'template_view.php', []);
+            $this->view->generate('', 'registration_view.php', []);
         } else {
             $auth = new Auth();
             $result = $auth->register($inputData['mail'], $inputData['password'], $inputData['password2']);
@@ -29,7 +29,7 @@ class ControllerAuth extends Controller {
                 $data = [
                     'message' => $result['message']
                 ];
-                $this->view->generate('registration_view.php', 'template_view.php', $data);
+                $this->view->generate('', 'registration_view.php', $data);
             } else {
                 $this->redirect('auth/login');
             }
@@ -53,7 +53,7 @@ class ControllerAuth extends Controller {
                     $data = [
                         'message' => $result['message']
                     ];
-                    $this->view->generate('login_view.php', 'template_view.php', $data);
+                    $this->view->generate('', 'login_view.php', $data);
                 } else {
                     setcookie('authID', $result['hash'], time() + 60 * 60 * 24, '/');
                     $this->redirect('account/');
@@ -62,7 +62,7 @@ class ControllerAuth extends Controller {
                 $this->redirect('account/');
             }
         }else {
-            $this->view->generate('login_view.php', 'template_view.php');
+            $this->view->generate('', 'login_view.php');
         }
     }
 
